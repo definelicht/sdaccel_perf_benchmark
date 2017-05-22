@@ -1,0 +1,32 @@
+/// @author    Johannes de Fine Licht (johannes.definelicht@inf.ethz.ch)
+/// @date      May 2017 
+/// @copyright This software is copyrighted under the BSD 3-Clause License. 
+
+#pragma once
+
+#include "hlslib/DataPack.h"
+
+using Data_t = ${BENCHMARK_DATA_TYPE};
+
+constexpr float kFrequency = ${BENCHMARK_TARGET_CLOCK};
+constexpr int kDepth = ${BENCHMARK_COMPUTE_STAGES};
+constexpr int kWidth = ${BENCHMARK_COMPUTE_WIDTH};
+constexpr int kAddsPerStage = ${BENCHMARK_ADDS_PER_STAGE};
+constexpr int kMultsPerStage = ${BENCHMARK_MULTS_PER_STAGE};
+// Always run for 1 second
+constexpr long kIterations = 1000000 * static_cast<long>(kFrequency);
+#define BENCHMARK_ADD_CORE ${BENCHMARK_ADD_CORE}
+#define BENCHMARK_MULT_CORE ${BENCHMARK_MULT_CORE}
+
+#define BENCHMARK_RESOURCE_PRAGMA(var, ip) BENCHMARK_DO_PRAGMA(HLS RESOURCE variable=var core=ip)
+#define BENCHMARK_DO_PRAGMA(x) _Pragma ( #x )
+
+constexpr Data_t kInputVal = 5;
+
+using DataPack = hlslib::DataPack<Data_t, kWidth>;
+
+extern "C" {
+
+void PerformanceBenchmark(DataPack const *in, DataPack *out);
+  
+}

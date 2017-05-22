@@ -1,112 +1,89 @@
 # Author:  Johannes de Fine Licht (johannes.definelicht@inf.ethz.ch)
-# Created: March 2017
+# Created: May 2017
+# This software is copyrighted under the BSD 3-Clause License. 
+
 cmake_minimum_required(VERSION 2.8.12)
-project(PeakBenchmark CXX)
+project(PerformanceBenchmark CXX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-# Target platform
-set(BENCHMARK_TARGET "TUL-KU115" CACHE STRING "Target board for benchmark.")
-if (BENCHMARK_TARGET STREQUAL "TUL-KU115")
-  set(BENCHMARK_PART_NAME "xcku115-flvb2104-2-e") 
-  set(BENCHMARK_DSA_STRING "xilinx:tul-pcie3-ku115:2ddr:3.1")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSDACCEL_PEAKBENCHMARK_TUL_KU115")
-  set(BENCHMARK_DIMMS 2)
-  set(BENCHMARK_ENTRY_FUNCTION "PeakBenchmark")
-elseif (BENCHMARK_TARGET STREQUAL "TUL-KU115-XPR")
-  set(BENCHMARK_PART_NAME "xcku115-flvb2104-2-e") 
-  set(BENCHMARK_DSA_STRING "xilinx:xil-accel-rd-ku115:4ddr-xpr:3.2")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSDACCEL_PEAKBENCHMARK_TUL_KU115_XPR")
-  set(BENCHMARK_DIMMS 4)
-  set(BENCHMARK_ENTRY_FUNCTION "PeakBenchmarkFourDimms")
-elseif (BENCHMARK_TARGET STREQUAL "ADM-7V3")
-  set(BENCHMARK_PART_NAME "xc7vx690tffg1157-2") 
-  set(BENCHMARK_DSA_STRING "xilinx:adm-pcie-7v3:1ddr:3.0")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSDACCEL_PEAKBENCHMARK_ADM_7V3")
-  set(BENCHMARK_DIMMS 1)
-  set(BENCHMARK_ENTRY_FUNCTION "PeakBenchmark")
-else()
-  message(FATAL_ERROR "Unsupported target \"${BENCHMARK_TARGET}\".")
-endif()
-set(BENCHMARK_KEEP_INTERMEDIATE OFF CACHE STRING
-    "Keep intermediate SDAccel files after a successful build.")
+# DSA to target (mandatory)
+set(BENCHMARK_DSA "" CACHE STRING "The SDAccel DSA (firmware) to target.")
+# Performance-related configuration 
+set(BENCHMARK_COMPUTE_STAGES 20 CACHE STRING "Number of compute stages in a deep pipeline.")
+set(BENCHMARK_COMPUTE_WIDTH 4 CACHE STRING "Width of data path in number of elements.")
+set(BENCHMARK_DATA_TYPE "float" CACHE STRING "Floating point data type.")
+set(BENCHMARK_TARGET_CLOCK 0 CACHE STRING "Target clock speed. If set to zero, the default of the DSA will be used.")
+set(BENCHMARK_ADDS_PER_STAGE 1 CACHE STRING "Number of additions to perform per stage.")
+set(BENCHMARK_MULTS_PER_STAGE 1 CACHE STRING "Number of mults to perform per stage.")
+set(BENCHMARK_ADD_CORE "FAddSub_fulldsp" CACHE STRING "Floating point core to use for addition. Must match data type.")
+set(BENCHMARK_MULT_CORE "FMul_fulldsp" CACHE STRING "Floating point core to use for multiplication. Must match data type.")
 
-# Domain configuration
-set(BENCHMARK_ITERATIONS 268435456 CACHE STRING "Number of elements to process.")
-set(BENCHMARK_DATA_TYPE "float" CACHE STRING "Data type of benchmark.")
-set(BENCHMARK_COMPUTE 400 CACHE STRING "Number of compute units.")
-set(BENCHMARK_WIDTH 4 CACHE STRING "Width of each stage.")
-set(BENCHMARK_ADDS_PER_STAGE 3 CACHE STRING "Additions per stage.")
-set(BENCHMARK_MULTS_PER_STAGE 1 CACHE STRING "Multiplications per stage.")
-set(BENCHMARK_TARGET_CLOCK 300 CACHE STRING "Target clock speed.")
+# Other configuration
 set(BENCHMARK_HLS_TARGET_TIMING 3.3333 CACHE STRING "Target timing of HLS.")
-math(EXPR BENCHMARK_DEPTH "${BENCHMARK_COMPUTE} / ${BENCHMARK_WIDTH}")
-math(EXPR BENCHMARK_REMAINDER "${BENCHMARK_COMPUTE} % ${BENCHMARK_WIDTH}")
-if (NOT ${BENCHMARK_REMAINDER} EQUAL 0)
-  message(FATAL_ERROR "Compute must be divisible by the width.")
+set(BENCHMARK_PART_NAME "xcku115-flvb2104-2-e") 
+set(BENCHMARK_KEEP_INTERMEDIATE OFF CACHE STRING
+    "Keep intermediate SDAccel files")
+
+# Enforce DSA and DIMMs to be manually specified
+if(BENCHMARK_DSA STREQUAL "")
+  message(FATAL_ERROR "Please specify the DSA to use by setting -DBENCHMARK_DSA=<value>")
+endif()
+if(BENCHMARK_COMPUTE_STAGES LESS 1)
+  message(FATAL_ERROR "Please specify number of compute stages with -DBENCHMARK_COMPUTE_STAGES=<value>.")
+endif()
+if(BENCHMARK_COMPUTE_WIDTH LESS 1)
+  message(FATAL_ERROR "Please specify SIMD width of compute stages with -DBENCHMARK_COMPUTE_WIDTH=<value>.")
 endif()
 
 # Dependencies
 find_package(SDAccel REQUIRED)
-if (NOT SDACCEL_FOUND)
-  message(FATAL_ERROR "SDAccel not found.")
-else()
-  include_directories(${SDACCEL_INCLUDE_DIR})
-endif()
-include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${SDACCEL_INCLUDE_DIRS} ${SDACCEL_ROOT_DIR}/Vivado_HLS/include)
-set(BENCHMARK_LIBS ${SDACCEL_LIBS})
+include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/include ${SDAccel_INCLUDE_DIRS} ${SDAccel_ROOT_DIR}/Vivado_HLS/include)
+set(BENCHMARK_LIBS ${SDAccel_LIBRARIES})
 
 # Compilation flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Dependencies
 set(BENCHMARK_HLS_DEPENDS
-    PeakBenchmark.h.in
-    PeakBenchmark.cpp
-    hlslib/OpenCL.h)
+    include/PerformanceBenchmark.h.in
+    kernel/PerformanceBenchmark.cpp
+    include/hlslib/SDAccel.h)
 
 # Configure files 
-configure_file(PeakBenchmark.h.in PeakBenchmark.h)
-configure_file(Synthesis.tcl.in Synthesis.tcl)
+configure_file(include/PerformanceBenchmark.h.in PerformanceBenchmark.h)
+configure_file(script/Synthesis.tcl.in Synthesis.tcl)
 
 # Synthesis
 add_custom_target(synthesis
-  COMMAND ${SDACCEL_VIVADO_HLS} -f Synthesis.tcl
+  COMMAND ${SDAccel_VIVADO_HLS} -f Synthesis.tcl
   DEPENDS ${BENCHMARK_HLS_DEPENDS})
 
 # Testing
 enable_testing()
-add_executable(Testbench Testbench.cpp PeakBenchmark.cpp)
+add_executable(Testbench src/Testbench.cpp kernel/PerformanceBenchmark.cpp)
 target_link_libraries(Testbench ${BENCHMARK_LIBS})
 add_test(Testbench Testbench)
 
-# SDAccel
-add_executable(ExecuteKernel ExecuteKernel.cpp)
-target_link_libraries(ExecuteKernel ${BENCHMARK_LIBS})
+# Hardware kernel 
+add_executable(ExecuteKernel.exe src/ExecuteKernel.cpp)
+target_link_libraries(ExecuteKernel.exe ${BENCHMARK_LIBS})
 set(BENCHMARK_XOCC_FLAGS ${BENCHMARK_XOCC_FLAGS} 
+  -O3
   # Includes
   -I${CMAKE_BINARY_DIR}
-  -I${CMAKE_SOURCE_DIR}
+  -I${CMAKE_SOURCE_DIR}/include
   # Source
-  ${CMAKE_SOURCE_DIR}/PeakBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/kernel/PerformanceBenchmark.cpp
   # Flags
-  --kernel ${BENCHMARK_ENTRY_FUNCTION} 
-  --xdevice ${BENCHMARK_DSA_STRING}
-  --xp prop:kernel.${BENCHMARK_ENTRY_FUNCTION}.kernel_flags="${CMAKE_CXX_FLAGS}"
+  --kernel PerformanceBenchmark 
+  --xdevice ${BENCHMARK_DSA}
+  --xp prop:kernel.PerformanceBenchmark.kernel_flags="${CMAKE_CXX_FLAGS}")
+if(BENCHMARK_TARGET_CLOCK GREATER 0)
+  set(BENCHMARK_XOCC_FLAGS ${BENCHMARK_XOCC_FLAGS}
   --kernel_frequency=${BENCHMARK_TARGET_CLOCK})
-if (BENCHMARK_DIMMS GREATER 3)
-  set(BENCHMARK_XOCC_FLAGS ${BENCHMARK_XOCC_FLAGS}
-    --xp misc:map_connect=add.kernel.${BENCHMARK_ENTRY_FUNCTION}_1.M_AXI_GMEM2.core.OCL_REGION_0.M02_AXI
-    --xp misc:map_connect=add.kernel.${BENCHMARK_ENTRY_FUNCTION}_1.M_AXI_GMEM3.core.OCL_REGION_0.M03_AXI)
 endif()
-if (BENCHMARK_DIMMS GREATER 1)
-  set(BENCHMARK_XOCC_FLAGS ${BENCHMARK_XOCC_FLAGS}
-    --xp misc:map_connect=add.kernel.${BENCHMARK_ENTRY_FUNCTION}_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI
-    --xp misc:map_connect=add.kernel.${BENCHMARK_ENTRY_FUNCTION}_1.M_AXI_GMEM1.core.OCL_REGION_0.M01_AXI
-    --max_memory_ports all)
-endif()
-
 add_custom_target(kernel
-  COMMAND ${SDACCEL_XOCC} -t hw ${BENCHMARK_XOCC_FLAGS}
-  -o peak_benchmark.xclbin
+  COMMAND ${SDAccel_XOCC} -t hw ${BENCHMARK_XOCC_FLAGS}
+  -o perf_benchmark.xclbin
   DEPENDS ${BENCHMARK_HLS_DEPENDS})

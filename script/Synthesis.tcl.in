@@ -1,0 +1,12 @@
+# Author:  Johannes de Fine Licht (johannes.definelicht@inf.ethz.ch)
+# Created: May 2017
+# This software is copyrighted under the BSD 3-Clause License. 
+
+open_project PeakBenchmark 
+open_solution ${BENCHMARK_PART_NAME}  
+set_part ${BENCHMARK_PART_NAME} 
+add_files -cflags "${CMAKE_CXX_FLAGS} -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_BINARY_DIR}" "${CMAKE_SOURCE_DIR}/kernel/PeakBenchmark.cpp" 
+set_top PeakBenchmark 
+create_clock -period ${BENCHMARK_HLS_TARGET_TIMING} -name default
+csynth_design
+exit
