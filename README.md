@@ -71,7 +71,7 @@ When aiming to achieve peak performance on a given board, the recommend procedur
 The costs file
 --------------
 
-When running the script `peak/maximize.py`, the default resource costs for floating point operations used are ones extracted from performing high-level synthesis when targeting Virtex~7, included in `peak/ops/Virtex7.ops`. To get the most accurate numbers, an operation costs file can be constructed from either datasheet or experimental numbers, then passed to the maximization script via the `-ops=<path>` option. 
+When running the script `peak/maximize.py`, the default resource costs for floating point operations used are ones extracted from performing high-level synthesis when targeting Virtex 7, included in `peak/ops/Virtex7.ops`. To get the most accurate numbers, an operation costs file can be constructed from either datasheet or experimental numbers, then passed to the maximization script via the `-ops=<path>` option. 
 
 
 Bugs
