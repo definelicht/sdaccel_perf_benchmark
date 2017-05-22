@@ -9,7 +9,7 @@
 using Data_t = ${BENCHMARK_DATA_TYPE};
 
 constexpr float kFrequency = ${BENCHMARK_TARGET_CLOCK};
-constexpr int kDepth = ${BENCHMARK_COMPUTE_STAGES};
+constexpr int kDepth = ${BENCHMARK_COMPUTE_DEPTH};
 constexpr int kWidth = ${BENCHMARK_COMPUTE_WIDTH};
 constexpr int kAddsPerStage = ${BENCHMARK_ADDS_PER_STAGE};
 constexpr int kMultsPerStage = ${BENCHMARK_MULTS_PER_STAGE};
