@@ -1,0 +1,4 @@
+*.html
+__pycache__
+build*
+.ycm_extra_conf.py
