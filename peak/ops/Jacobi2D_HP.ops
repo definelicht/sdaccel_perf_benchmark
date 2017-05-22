@@ -1,0 +1,11 @@
+{
+  "half": {
+    "add": {
+      "FAddSub_fulldsp": 3
+    },
+    "mult": {
+      "FMul_fulldsp": 1
+    }
+  }
+}
+
