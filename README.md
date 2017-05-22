@@ -31,7 +31,7 @@ Running
 -------
 
 After building with `make`, run the binary `ExecuteKernel.exe`.  
-This executable will look for the kernel file `peak_benchmark.xclbin`, which should be located in the same directory. The file will print the result of the benchmark to standard output.
+This executable will look for the kernel file `perf_benchmark.xclbin`, which should be located in the same directory. The file will print the result of the benchmark to standard output.
 
 Theoretical peak
 ----------------
