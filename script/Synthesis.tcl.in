@@ -7,6 +7,6 @@ open_solution ${BENCHMARK_PART_NAME}
 set_part ${BENCHMARK_PART_NAME} 
 add_files -cflags "${CMAKE_CXX_FLAGS} -DHLSLIB_SYNTHESIS -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_BINARY_DIR}" "${CMAKE_SOURCE_DIR}/kernel/PerformanceBenchmark.cpp" 
 set_top PerformanceBenchmark 
-create_clock -period ${BENCHMARK_HLS_TARGET_TIMING} -name default
+create_clock -period ${BENCHMARK_TARGET_CLOCK}MHz -name default
 csynth_design
 exit

@@ -13,14 +13,13 @@ set(BENCHMARK_DSA "" CACHE STRING "The SDAccel DSA (firmware) to target.")
 set(BENCHMARK_COMPUTE_DEPTH 20 CACHE STRING "Number of compute stages in a deep pipeline.")
 set(BENCHMARK_COMPUTE_WIDTH 4 CACHE STRING "Width of data path in number of elements.")
 set(BENCHMARK_DATA_TYPE "float" CACHE STRING "Floating point data type.")
-set(BENCHMARK_TARGET_CLOCK 250 CACHE STRING "Target clock speed.")
+set(BENCHMARK_TARGET_CLOCK 300 CACHE STRING "Target clock speed.")
 set(BENCHMARK_ADDS_PER_STAGE 1 CACHE STRING "Number of additions to perform per stage.")
 set(BENCHMARK_MULTS_PER_STAGE 1 CACHE STRING "Number of mults to perform per stage.")
 set(BENCHMARK_ADD_CORE "FAddSub_fulldsp" CACHE STRING "Floating point core to use for addition. Must match data type.")
 set(BENCHMARK_MULT_CORE "FMul_fulldsp" CACHE STRING "Floating point core to use for multiplication. Must match data type.")
 
 # Other configuration
-set(BENCHMARK_HLS_TARGET_TIMING 3.3333 CACHE STRING "Target timing of HLS.")
 set(BENCHMARK_PART_NAME "xcku115-flvb2104-2-e") 
 set(BENCHMARK_KEEP_INTERMEDIATE OFF CACHE STRING
     "Keep intermediate SDAccel files")
@@ -81,7 +80,7 @@ set(BENCHMARK_XOCC_FLAGS ${BENCHMARK_XOCC_FLAGS}
   # Flags
   --kernel PerformanceBenchmark 
   --xdevice ${BENCHMARK_DSA}
-  --xp prop:kernel.PerformanceBenchmark.kernel_flags="${CMAKE_CXX_FLAGS}")
+  --xp prop:kernel.PerformanceBenchmark.kernel_flags="${CMAKE_CXX_FLAGS} -DHLSLIB_SYNTHESIS")
 if(BENCHMARK_TARGET_CLOCK GREATER 0)
   set(BENCHMARK_XOCC_FLAGS ${BENCHMARK_XOCC_FLAGS}
   --kernel_frequency=${BENCHMARK_TARGET_CLOCK})
