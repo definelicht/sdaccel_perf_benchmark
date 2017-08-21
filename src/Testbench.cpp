@@ -8,16 +8,6 @@
 // Should only be used to sanity check a small configuration.
 int main() {
 
-  constexpr int kOpsPerCycle =
-      kDepth * kWidth * (kAddsPerStage + kMultsPerStage);
-  constexpr double kOpsTotal = static_cast<double>(kIterations) * kOpsPerCycle;
-
-  if (kOpsTotal > 1e9) {
-    std::cerr << "Warning: running testbench for large configuration. This "
-                 "could take a long time."
-              << "\n";
-  }
-
   DataPack input(kInputVal);
   DataPack output;
 

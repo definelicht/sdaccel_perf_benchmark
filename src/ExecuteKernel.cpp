@@ -14,7 +14,7 @@ int main(int argc, char **) {
 
   constexpr int kOpsPerCycle =
       kDepth * kWidth * (kAddsPerStage + kMultsPerStage);
-  constexpr double kOpsTotal = static_cast<double>(kIterations) * kOpsPerCycle;
+  constexpr double kOpsTotal = static_cast<double>(kIterationsKernel) * kOpsPerCycle;
   constexpr double kOpsPerSecond = kOpsPerCycle * (1e-3 * kFrequency);
 
   std::cout << "Expected performance at " << kFrequency

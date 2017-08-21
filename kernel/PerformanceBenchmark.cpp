@@ -8,7 +8,7 @@
 void ReadIn(DataPack const *in, hls::stream<DataPack> &out) {
   DataPack value;
 ReadIn:
-  for (long i = 0; i < kIterations; ++i) {
+  for (long i = 0; i < kIterationsKernel; ++i) {
     #pragma HLS PIPELINE
     // Only read a single value to minimize the influence of memory effects on
     // performance
@@ -21,7 +21,7 @@ ReadIn:
 
 void Compute(hls::stream<DataPack> &in, hls::stream<DataPack> &out) {
 ComputeMain:
-  for (long i = 0; i < kIterations; ++i) {
+  for (long i = 0; i < kIterationsKernel; ++i) {
     #pragma HLS PIPELINE
     auto value = in.read();
   ComputeWidth:
@@ -51,12 +51,12 @@ ComputeMain:
 
 void WriteOut(hls::stream<DataPack> &in, DataPack *out) {
 WriteOut:
-  for (long i = 0; i < kIterations; ++i) {
+  for (long i = 0; i < kIterationsKernel; ++i) {
     #pragma HLS PIPELINE
     const auto read = in.read();
     // Only write out a single value to minimize the influence of memory effects
     // on performance
-    if (i == kIterations - 1) {
+    if (i == kIterationsKernel - 1) {
       *out = read;
     }
   }
@@ -75,6 +75,7 @@ void PerformanceBenchmark(DataPack const *in, DataPack *out) {
   hls::stream<DataPack> pipes[kDepth + 1];
 
   ReadIn(in, pipes[0]);
+
 
 UnrollCompute:
   for (int d = 0; d < kDepth; ++d) {

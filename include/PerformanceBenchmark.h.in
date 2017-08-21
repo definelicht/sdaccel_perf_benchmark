@@ -13,8 +13,14 @@ constexpr int kDepth = ${BENCHMARK_COMPUTE_DEPTH};
 constexpr int kWidth = ${BENCHMARK_COMPUTE_WIDTH};
 constexpr int kAddsPerStage = ${BENCHMARK_ADDS_PER_STAGE};
 constexpr int kMultsPerStage = ${BENCHMARK_MULTS_PER_STAGE};
-// Always run for 1 second
-constexpr long kIterations = 1000000 * static_cast<long>(kFrequency);
+// Always run for 1 second on the device
+constexpr long kIterationsFpga = 1000000 * static_cast<long>(kFrequency);
+constexpr long kIterationsTest = 1000000;
+#ifdef HLSLIB_SYNTHESIS 
+constexpr long kIterationsKernel = kIterationsFpga;
+#else
+constexpr long kIterationsKernel = kIterationsTest;
+#endif
 #define BENCHMARK_ADD_CORE ${BENCHMARK_ADD_CORE}
 #define BENCHMARK_MULT_CORE ${BENCHMARK_MULT_CORE}
 
