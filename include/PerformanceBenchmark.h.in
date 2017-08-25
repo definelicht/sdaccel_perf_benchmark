@@ -27,7 +27,7 @@ constexpr long kIterationsKernel = kIterationsTest;
 #define BENCHMARK_RESOURCE_PRAGMA(var, ip) BENCHMARK_DO_PRAGMA(HLS RESOURCE variable=var core=ip)
 #define BENCHMARK_DO_PRAGMA(x) _Pragma ( #x )
 
-constexpr Data_t kInputVal = 5;
+const Data_t kInputVal(5);
 
 using DataPack = hlslib::DataPack<Data_t, kWidth>;
 

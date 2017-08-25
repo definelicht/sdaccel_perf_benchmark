@@ -30,17 +30,19 @@ ComputeMain:
     ComputeAdds:
       for (int k = 0; k < kAddsPerStage; ++k) {
         #pragma HLS UNROLL
-        static constexpr Data_t kAddVal =
-            kInputVal * ((1 << kMultsPerStage) - 1) / kAddsPerStage;
-        const auto eval = value[j] + kAddVal;
+        const Data_t kAddVal(
+            kInputVal * ((1 << kMultsPerStage) - 1) / kAddsPerStage);
+        const Data_t val = value[j]; 
+        const auto eval = val + kAddVal;
         BENCHMARK_RESOURCE_PRAGMA(eval, BENCHMARK_ADD_CORE)
         value[j] = eval;
       }
     ComputeMults:
       for (int k = 0; k < kMultsPerStage; ++k) {
         #pragma HLS UNROLL
-        static constexpr Data_t kMultVal = 0.5;
-        const auto eval = value[j] * kMultVal;
+        const Data_t kMultVal(0.5);
+        const Data_t val = value[j];
+        const auto eval = val * kMultVal;
         BENCHMARK_RESOURCE_PRAGMA(eval, BENCHMARK_MULT_CORE)
         value[j] = eval;
       }

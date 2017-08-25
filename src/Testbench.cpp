@@ -14,8 +14,8 @@ int main() {
   PerformanceBenchmark(&input, &output);
 
   for (int i = 0; i < kWidth; ++i) {
-    if (output[i] != kInputVal) {
-      std::cerr << "Mismatch: " << output[i] << " (should be " << kInputVal
+    if (Data_t(output[i]) != kInputVal) {
+      std::cerr << "Mismatch: " << Data_t(output[i]) << " (should be " << kInputVal
                 << ")." << std::endl;
       return 1;
     }
